@@ -1,6 +1,8 @@
 # Leetcoder 🤓
 
-This is **Leetcoder** – Your personal vault of LeetCode solutions! This project lets you store, run, and test your coding solutions like a boss 😎 🔥, all from the comfort of your favorite IDE.
+This is **Leetcoder** – Your personal vault of LeetCode solutions! 
+
+This project lets you store, run, and test your coding solutions like a boss 😎 🔥, all from the comfort of your favorite IDE.
 
 ## Features
 - **Dynamic Problem Loading**: Load and run your LeetCode problems 🤯.
@@ -24,11 +26,17 @@ graph TD;
 ---
 CHANGELOG
 
+[2024-08-24] - Version 0.2.0
+
+
+   	•	Introduced a new parsing mechanism to automatically handle different types of problem inputs.
+	•	Added a mapping system (PARSER_MAPPING) to link specific problems to their corresponding parsing methods.
+
+
 [2024-08-24] - Version 0.1.0
 
-Added
 
-	•	Initial Release: Set up the basic structure of the Leetcoder project, including:
-	•	Problem menu with color-coded difficulty levels (easy, medium, hard).
-	•	Problem runner that executes solutions based on test cases.
-	•	Modularised project structure with separate files for the menu, runner, and problem loader.
+    •	Initial Release: Set up the basic structure of the Leetcoder project, including:
+    •	Problem menu with color-coded difficulty levels (easy, medium, hard).
+    •	Problem runner that executes solutions based on test cases.
+    •	Modularised project structure with separate files for the menu, runner, and problem loader.
