@@ -1,5 +1,5 @@
 import json
-from common.treenode import TreeNode
+from common import TreeNode, Node
 
 def json_parser(input_data):
     return json.loads(input_data)
@@ -28,5 +28,27 @@ def build_tree(values):
             current.right = TreeNode(values[i])
             queue.append(current.right)
         i += 1
+    return root
+
+def nary_tree_parser(input_data):
+    values = json.loads(input_data)
+    return build_nary_tree(values)
+
+def build_nary_tree(values):
+    if not values:
+        return None
+
+    root = Node(values[0])
+    queue = [root]
+    i = 2  
+
+    while queue and i < len(values):
+        current = queue.pop(0)
+        while i < len(values) and values[i] is not None:
+            child = Node(values[i])
+            current.children.append(child)
+            queue.append(child)
+            i += 1
+        i += 1  
 
     return root

@@ -26,7 +26,13 @@ graph TD;
 ---
 CHANGELOG
 
-[2024-08-24] - Version 0.2.0
+[2024-08-26] - Version 0.3.0
+    
+ 	•	Added wrap-around for long inputs/outputs
+    •	Added list formatter to solve weird whitespace things for comparision
+    •	Enabled parsing and construction of n-ary tree structures
+    
+[2024-08-25] - Version 0.2.0
 
 
    	•	Introduced a new parsing mechanism to automatically handle different types of problem inputs.

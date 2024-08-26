@@ -1,4 +1,5 @@
 import os
+import textwrap
 from problem_loader import ProblemLoader
 from config import PARSER_MAPPING, DEFAULT_PARSER  
 
@@ -10,50 +11,67 @@ class ProblemRunner:
         self.output_file = f"problems/{difficulty}/{problem_name}_output.txt"
         self.solution = ProblemLoader.load_solution(difficulty, problem_name)
 
-    def read_inputs(self):
-        inputs = []
-        with open(self.input_file, 'r') as file:
-            for line in file:
-                line = line.strip()
-                if line:
-                    inputs.append(line)
-        return inputs
-
-    def read_expected_outputs(self):
-        if not os.path.exists(self.output_file):
-            return None
-
-        expected_outputs = []
-        with open(self.output_file, 'r') as file:
-            for line in file:
-                line = line.strip()
-                if line:
-                    expected_outputs.append(line)
-        return expected_outputs
+    def read_file(self, file_path):
+        if not os.path.exists(file_path):
+            return []
+        with open(file_path, 'r') as file:
+            return [line.strip() for line in file if line.strip()]
 
     def parse_input(self, input_data):
         parser = PARSER_MAPPING.get(self.problem_name, DEFAULT_PARSER)
         return parser(input_data)
 
+    def format_output(self, result):
+        """Format the output based on its type."""
+        if isinstance(result, list):
+            return self.format_list(result)
+        else: # probably move somewhere else???
+            return str(result)
+
+    def format_list(self, lst):
+        """Convert a list of integers to a formatted string."""
+        return '[' + ','.join(map(str, lst)) + ']'
+
+    def compare_results(self, result, expected):
+        """Compare the formatted result with the expected output."""
+        formatted_result = self.format_output(result)
+        return formatted_result == expected, formatted_result
+
     def run(self):
-        inputs = self.read_inputs()
-        expected_outputs = self.read_expected_outputs()
+        inputs = self.read_file(self.input_file)
+        expected_outputs = self.read_file(self.output_file)
+        
+        print(f"\n{'Input':<35}{'Output':<35}{'Expected':<35}{'Result':<10}")
+        print("-" * 120)
+
         passed_count = 0
-
-        print(f"\n{'Input':<30}{'Output':<30}{'Expected':<30}{'Result':<10}")
-        print(f"{'-'*100}")
-
         for i, input_data in enumerate(inputs):
             parsed_input = self.parse_input(input_data)
             result = getattr(self.solution, self.problem_name)(parsed_input)
-            expected_output = expected_outputs[i] if expected_outputs else "-----"
-            if str(result) == expected_output:
-                test_result = "\033[92mPASSED\033[0m"
-                passed_count += 1
-            else:
-                test_result = "\033[91mFAILED\033[0m" if expected_outputs else "-----"
+            expected = expected_outputs[i] if i < len(expected_outputs) else "-----"
 
-            print(f"{input_data:<30}{str(result):<30}{expected_output:<30}{test_result:<10}")
+            is_correct, formatted_result = self.compare_results(result, expected)
+            test_result = "\033[92mPASSED\033[0m" if is_correct else "\033[91mFAILED\033[0m"
+            passed_count += is_correct
 
-        total_tests = len(inputs)
-        print(f"\n\033[96mSummary: {passed_count}/{total_tests} test cases passed.\033[0m")
+            self.print_row(input_data, formatted_result, expected, test_result)
+
+        print(f"\n\033[96mSummary: {passed_count}/{len(inputs)} test cases passed.\033[0m")
+
+    def print_row(self, input_data, output, expected, result):
+        wrapped_input = textwrap.fill(input_data, 30)
+        wrapped_output = textwrap.fill(output, 30)
+        wrapped_expected = textwrap.fill(expected, 30)
+
+        input_lines = wrapped_input.splitlines()
+        output_lines = wrapped_output.splitlines()
+        expected_lines = wrapped_expected.splitlines()
+
+        max_lines = max(len(input_lines), len(output_lines), len(expected_lines))
+
+        for i in range(max_lines):
+            input_line = input_lines[i] if i < len(input_lines) else ''
+            output_line = output_lines[i] if i < len(output_lines) else ''
+            expected_line = expected_lines[i] if i < len(expected_lines) else ''
+            result_line = result if i == 0 else ''
+            print(f"{input_line:<35}{output_line:<35}{expected_line:<35}{result_line:<10}")
