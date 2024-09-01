@@ -1,7 +1,9 @@
 import os
 import textwrap
+from typing import List, Optional
 from problem_loader import ProblemLoader
 from config import PARSER_MAPPING, DEFAULT_PARSER  
+from common import *
 
 class ProblemRunner:
     def __init__(self, difficulty, problem_name):
@@ -10,6 +12,7 @@ class ProblemRunner:
         self.input_file = f"problems/{difficulty}/{problem_name}_input.txt"
         self.output_file = f"problems/{difficulty}/{problem_name}_output.txt"
         self.solution = ProblemLoader.load_solution(difficulty, problem_name)
+        self.signature = ProblemLoader.get_method_signature(self.solution, problem_name)
 
     def read_file(self, file_path):
         if not os.path.exists(file_path):
@@ -18,45 +21,59 @@ class ProblemRunner:
             return [line.strip() for line in file if line.strip()]
 
     def parse_input(self, input_data):
-        parser = PARSER_MAPPING.get(self.problem_name, DEFAULT_PARSER)
-        return parser(input_data)
+        inputs = []
+        param_types = [param.annotation for param in self.signature.parameters.values()]
 
-    def format_output(self, result):
-        """Format the output based on its type."""
-        if isinstance(result, list):
-            return self.format_list(result)
-        else: # probably move somewhere else???
-            return str(result)
-
-    def format_list(self, lst):
-        """Convert a list of integers to a formatted string."""
-        return '[' + ','.join(map(str, lst)) + ']'
+        i = 0
+        while i < len(input_data):
+            parsed_values = []
+            for param_type in param_types:
+                raw_input = input_data[i].strip().replace('"', '')  
+                if param_type == List[int]:
+                    parsed_values.append(eval(raw_input))  
+                elif param_type == int:
+                    parsed_values.append(int(raw_input))  
+                elif param_type == str:
+                    parsed_values.append(raw_input)  
+                elif param_type == Optional[TreeNode] or param_type == TreeNode:
+                    parsed_values.append(tree_parser(raw_input))
+                elif param_type == Optional[Node] or param_type == Node or param_type == 'Node':
+                    parsed_values.append(nary_tree_parser(raw_input)) 
+                else:
+                    raise ValueError(f"Unsupported parameter type: {param_type}")
+                i += 1
+            inputs.append(tuple(parsed_values))
+        return inputs
+    
+    # TODO: fix for cases where whitespace actually matters later
 
     def compare_results(self, result, expected):
-        """Compare the formatted result with the expected output."""
-        formatted_result = self.format_output(result)
+        formatted_result = str(result).replace(" ", "")
+        expected = expected.replace(" ", "")
         return formatted_result == expected, formatted_result
 
     def run(self):
         inputs = self.read_file(self.input_file)
         expected_outputs = self.read_file(self.output_file)
-        
+        parsed_inputs = self.parse_input(inputs)
         print(f"\n{'Input':<35}{'Output':<35}{'Expected':<35}{'Result':<10}")
         print("-" * 120)
 
         passed_count = 0
-        for i, input_data in enumerate(inputs):
-            parsed_input = self.parse_input(input_data)
-            result = getattr(self.solution, self.problem_name)(parsed_input)
+        for i, input_set in enumerate(parsed_inputs):
+            method = getattr(self.solution, self.problem_name)
+            result = method(*input_set)
             expected = expected_outputs[i] if i < len(expected_outputs) else "-----"
 
             is_correct, formatted_result = self.compare_results(result, expected)
             test_result = "\033[92mPASSED\033[0m" if is_correct else "\033[91mFAILED\033[0m"
             passed_count += is_correct
 
-            self.print_row(input_data, formatted_result, expected, test_result)
+            self.print_row(inputs[i], formatted_result, expected, test_result)
 
-        print(f"\n\033[96mSummary: {passed_count}/{len(inputs)} test cases passed.\033[0m")
+        all_passed = passed_count == len(expected_outputs)
+        print(f"\n\033[96mSummary: {passed_count}/{len(expected_outputs)} test cases passed.\033[0m")
+        return all_passed
 
     def print_row(self, input_data, output, expected, result):
         wrapped_input = textwrap.fill(input_data, 30)
