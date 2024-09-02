@@ -26,6 +26,11 @@ graph TD;
 ---
 CHANGELOG
 
+[2024-09-02] - Version 0.4.0
+
+	•	Enhanced ProblemRunner to use dynamic input parsing for different input types like lists, integers, strings, and custom classes (e.g., TreeNode, Node).
+	•	Introduced a CI/CD script (run_all_tests.py) to automate test execution across all problems.
+
 [2024-08-26] - Version 0.3.0
     
  	•	Added wrap-around for long inputs/outputs
