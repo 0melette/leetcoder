@@ -2,7 +2,6 @@ import os
 import textwrap
 from typing import List, Optional
 from problem_loader import ProblemLoader
-from config import PARSER_MAPPING, DEFAULT_PARSER  
 from common import *
 
 class ProblemRunner:
