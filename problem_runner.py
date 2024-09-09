@@ -43,6 +43,8 @@ class ProblemRunner:
             return tree_parser(raw_input)
         elif expected_type == Optional[Node] or expected_type == Node or expected_type == 'Node':
             return nary_tree_parser(raw_input)
+        elif expected_type == Optional[ListNode] or expected_type == ListNode:
+            return linked_list_parser(raw_input)
         
         elif hasattr(expected_type, '__origin__') and expected_type.__origin__ == list:
             inner_type = expected_type.__args__[0]

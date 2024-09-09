@@ -1,5 +1,5 @@
 import json
-from common import TreeNode, Node
+from common import TreeNode, Node, ListNode
 
 def json_parser(input_data):
     return json.loads(input_data)
@@ -52,3 +52,20 @@ def build_nary_tree(values):
         i += 1  
 
     return root
+
+def linked_list_parser(input_data):
+    values = json.loads(input_data)
+    return build_linked_list(values)
+
+def build_linked_list(values):
+    if not values:
+        return None
+
+    dummy = ListNode()
+    current = dummy
+
+    for value in values:
+        current.next = ListNode(value)
+        current = current.next
+
+    return dummy.next
