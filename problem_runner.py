@@ -1,6 +1,6 @@
 import os
 import textwrap
-from typing import List, Optional
+from typing import List, Optional, Any
 from problem_loader import ProblemLoader
 from common import *
 
@@ -27,24 +27,35 @@ class ProblemRunner:
         while i < len(input_data):
             parsed_values = []
             for param_type in param_types:
-                raw_input = input_data[i].strip().replace('"', '')  
-                if param_type == List[int]:
-                    parsed_values.append(eval(raw_input))  
-                elif param_type == int:
-                    parsed_values.append(int(raw_input))  
-                elif param_type == str:
-                    parsed_values.append(raw_input)  
-                elif param_type == Optional[TreeNode] or param_type == TreeNode:
-                    parsed_values.append(tree_parser(raw_input))
-                elif param_type == Optional[Node] or param_type == Node or param_type == 'Node':
-                    parsed_values.append(nary_tree_parser(raw_input)) 
-                else:
-                    raise ValueError(f"Unsupported parameter type: {param_type}")
+                raw_input = input_data[i].strip().replace('"', '')
+                parsed_values.append(self.recursive_parse(raw_input, param_type))
                 i += 1
             inputs.append(tuple(parsed_values))
+        
         return inputs
-    
-    # TODO: fix for cases where whitespace actually matters later
+
+    def recursive_parse(self, raw_input: str, expected_type: Any):
+        if expected_type == int:
+            return int(raw_input)
+        elif expected_type == str:
+            return raw_input
+        elif expected_type == Optional[TreeNode] or expected_type == TreeNode:
+            return tree_parser(raw_input)
+        elif expected_type == Optional[Node] or expected_type == Node or expected_type == 'Node':
+            return nary_tree_parser(raw_input)
+        
+        elif hasattr(expected_type, '__origin__') and expected_type.__origin__ == list:
+            inner_type = expected_type.__args__[0]
+        if raw_input.strip() == "[]":
+            return [] 
+        if raw_input.startswith('[') and raw_input.endswith(']'):
+            raw_list = raw_input.strip('[]').split(',')
+            if raw_list == ['']:  # the list is empty or malformed
+                return []
+            return [self.recursive_parse(item.strip(), inner_type) for item in raw_list]
+        else:
+            raise ValueError(f"Expected a list format for {raw_input}, but got {raw_input}.")
+            # TODO: fix for cases where whitespace actually matters later
 
     def compare_results(self, result, expected):
         formatted_result = str(result).replace(" ", "")
