@@ -48,16 +48,25 @@ class ProblemRunner:
         
         elif hasattr(expected_type, '__origin__') and expected_type.__origin__ == list:
             inner_type = expected_type.__args__[0]
-        if raw_input.strip() == "[]":
-            return [] 
-        if raw_input.startswith('[') and raw_input.endswith(']'):
-            raw_list = raw_input.strip('[]').split(',')
-            if raw_list == ['']:  # the list is empty or malformed
+
+            if raw_input.strip() == "[]":
                 return []
-            return [self.recursive_parse(item.strip(), inner_type) for item in raw_list]
+
+            if raw_input.startswith('[') and raw_input.endswith(']'):
+                try:
+                    parsed_list = eval(raw_input)
+                    if isinstance(parsed_list, list):
+                        return [self.recursive_parse(str(item), inner_type) for item in parsed_list]
+                    else:
+                        raise ValueError(f"Expected a list format for {raw_input}, but got {type(parsed_list)}.")
+                except Exception as e:
+                    raise ValueError(f"Error parsing input: {raw_input}. Details: {e}")
+            else:
+                raise ValueError(f"Expected a list format for {raw_input}, but got {raw_input}.")
+        
         else:
-            raise ValueError(f"Expected a list format for {raw_input}, but got {raw_input}.")
-            # TODO: fix for cases where whitespace actually matters later
+            raise ValueError(f"Unsupported type for parsing: {expected_type}")
+
 
     def compare_results(self, result, expected):
         formatted_result = str(result).replace(" ", "")
