@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# put this file in .git/hooks/pre-push and make it executable
+echo "Running tests before push..."
+python3 run_all_tests.py
+
+if [ $? -ne 0 ]; then
+    echo "Tests failed. Aborting push."
+    exit 1
+fi
+
+echo "All tests passed. Proceeding with push."
+exit 0
