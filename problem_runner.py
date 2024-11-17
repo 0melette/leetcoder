@@ -1,5 +1,6 @@
 import os
 import textwrap
+import json
 from typing import List, Optional, Any
 from problem_loader import ProblemLoader
 from common import *
@@ -27,7 +28,7 @@ class ProblemRunner:
         while i < len(input_data):
             parsed_values = []
             for param_type in param_types:
-                raw_input = input_data[i].strip().replace('"', '')
+                raw_input = input_data[i].strip()
                 parsed_values.append(self.recursive_parse(raw_input, param_type))
                 i += 1
             inputs.append(tuple(parsed_values))
@@ -38,7 +39,10 @@ class ProblemRunner:
         if expected_type == int:
             return int(raw_input)
         elif expected_type == str:
-            return raw_input
+            try:
+                return json.loads(raw_input)
+            except json.JSONDecodeError:
+                return raw_input
         elif expected_type == Optional[TreeNode] or expected_type == TreeNode:
             return tree_parser(raw_input)
         elif expected_type == Optional[Node] or expected_type == Node or expected_type == 'Node':
@@ -54,19 +58,18 @@ class ProblemRunner:
 
             if raw_input.startswith('[') and raw_input.endswith(']'):
                 try:
-                    parsed_list = eval(raw_input)
+                    parsed_list = json.loads(raw_input)
                     if isinstance(parsed_list, list):
-                        return [self.recursive_parse(str(item), inner_type) for item in parsed_list]
+                        return [self.recursive_parse(json.dumps(item) if isinstance(item, str) else str(item), inner_type) for item in parsed_list]
                     else:
                         raise ValueError(f"Expected a list format for {raw_input}, but got {type(parsed_list)}.")
-                except Exception as e:
-                    raise ValueError(f"Error parsing input: {raw_input}. Details: {e}")
+                except json.JSONDecodeError as e:
+                    raise ValueError(f"Error parsing input as JSON: {raw_input}. Details: {e}")
             else:
                 raise ValueError(f"Expected a list format for {raw_input}, but got {raw_input}.")
         
         else:
             raise ValueError(f"Unsupported type for parsing: {expected_type}")
-
 
     def compare_results(self, result, expected):
         formatted_result = str(result).replace(" ", "")
