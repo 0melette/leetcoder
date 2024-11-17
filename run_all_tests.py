@@ -26,7 +26,7 @@ def run_all_tests():
         i_am_cool()
     else:
         print("\nYOU BROKE SOMETHING!!!!!!!!!.")
-        print("""     .
+        print(r"""     .
        ':'
    ___:____     |""/""||
  ,'  /      `.    \  /
@@ -36,7 +36,7 @@ def run_all_tests():
 def i_am_cool():
     print("\nAll tests passed successfully!")
     print("\n🎉🎉🎉 YIPPPEEE!!! 🎉🎉🎉")
-    print("""
+    print(r"""
           .
        ':'
    ___:____     |""/""||
