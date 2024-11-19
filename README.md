@@ -2,7 +2,11 @@
 
 This is **Leetcoder** – Your personal vault of LeetCode solutions! 
 
-This project lets you store, run, and test your coding solutions like a boss 😎 🔥, all from the comfort of your favorite IDE.
+only works with python ahahaha
+
+This project lets you store, run, and test your coding solutions like a boss 😎 🔥.
+
+![neovim](image.png)
 
 ## Features
 - **Dynamic Problem Loading**: Load and run your LeetCode problems 🤯.
