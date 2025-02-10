@@ -74,6 +74,8 @@ class ProblemRunner:
     def compare_results(self, result, expected):
         formatted_result = str(result).replace(" ", "")
         expected = expected.replace(" ", "")
+        if isinstance(result, str):
+            formatted_result = f'"{result}"'
         return formatted_result == expected, formatted_result
 
     def run(self):
